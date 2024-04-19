@@ -1,0 +1,45 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* White background */
+}
+
+.accordion {
+    background-color: #004080; /* Dark blue */
+    color: white; /* White text */
+    cursor: pointer;
+    padding: 18px;
+    width: 100%; /* Full width */
+    border: 1px solid white; /* Thin white border */
+    outline: none;
+    text-align: left;
+    font-size: 20px; /* Larger font size for readability */
+    transition: 0.4s;
+}
+
+.accordion:hover, .accordion.active {
+    opacity: 0.9; /* Slight opacity change on hover/active */
+}
+
+.panel {
+    display: none; /* Hidden by default */
+    overflow: hidden;
+    background-color: #f2f2f2; /* Light background for the panel content */
+}
+
+.sub-category-content {
+    padding: 20px;
+    border-top: 1px solid #ccc; /* Visual separation between sub-categories */
+}
+
+.sub-category-content h3 {
+    color: #004080; /* Dark blue for sub-category titles */
+}
+
+.sub-category-link {
+    color: #004080; /* Dark blue text for links */
+    text-decoration: none;
+    display: block; /* Ensure links are block level for easier clicking */
+    padding: 10px 0; /* Padding for touch targets */
+}
