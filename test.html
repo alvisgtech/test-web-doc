@@ -3,101 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Testing CoWork@GOV</title>
+    <title>CoWork@GOV Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-        .location {
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .location h2 {
-            margin: 0;
-            font-size: 18px;
-        }
-        .location p {
-            margin: 5px 0;
-        }
-        a {
-            color: #007BFF;
-            text-decoration: none;
+        #map {
+            width: 100%;
+            height: 100vh; /* Full height for mobile-friendly design */
         }
         .user-location {
-            margin-bottom: 20px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
             background-color: #f9f9f9;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
 
-<h1>CoWork@GOV</h1>
+<div id="map"></div>
 <div id="userLocation" class="user-location"></div>
-<div id="locations"></div>
 
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+    // Define the buildings array
     var buildings = [
-        {name: "HDB", lat: parseFloat(1.3326), lon: parseFloat(103.8479), seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Central Singapore
-        {name: "Building 2", lat: parseFloat(1.3644), lon: parseFloat(103.9915), seatsAvailable: 8, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Pasir Ris
-        {name: "Building 3", lat: parseFloat(1.2839), lon: parseFloat(103.8514), seatsAvailable: 0, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Marina Bay Sands
-        {name: "Building 4", lat: parseFloat(1.3776), lon: parseFloat(103.7641), seatsAvailable: 12, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}  // Woodlands
+        {name: "HDB", lat: 1.3326157210856786, lon: 103.84792891104003, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Central Singapore
+        {name: "Building 2", lat: 1.3644, lon: 103.9915, seatsAvailable: 8, deeplink: "myapp://building2"}, // Pasir Ris
+        {name: "Building 3", lat: 1.2839, lon: 103.8514, seatsAvailable: 0, deeplink: "myapp://building3"}, // Marina Bay Sands
+        {name: "Building 4", lat: 1.3776, lon: 103.7641, seatsAvailable: 12, deeplink: "myapp://building4"}  // Woodlands
     ];
 
-    function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-        var R = 6371; // Radius of the earth in km
-        var dLat = deg2rad(lat2 - lat1);
-        var dLon = deg2rad(lon2 - lon1);
-        var a = Math.sin(dLat / 2) * Math.sin(dLon / 2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Distance in km
-    }
+    // Initialize the map
+    var map = L.map('map').setView([1.3521, 103.8198], 12); // Initial view centered on Singapore
 
-    function deg2rad(deg) {
-        return deg * (Math.PI / 180);
-    }
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
+    // Geolocation: Get the user's location
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-            var userLat = parseFloat(position.coords.latitude);
-            var userLon = parseFloat(position.coords.longitude);
+            var userLat = position.coords.latitude;
+            var userLon = position.coords.longitude;
 
             // Display user's current latitude and longitude
             var userLocationDiv = document.getElementById("userLocation");
-            userLocationDiv.innerHTML = `<strong>Your Location:</strong> Latitude: ${userLat}, Longitude: ${userLon}`;
+            userLocationDiv.innerHTML = `<strong>Your Location:</strong> Latitude: ${userLat.toFixed(6)}, Longitude: ${userLon.toFixed(6)}`;
 
-            // Calculate distance for each building
+            // Add marker for user's location
+            var userMarker = L.marker([userLat, userLon]).addTo(map).bindPopup("You are here").openPopup();
+
+            // Center the map on user's location
+            map.setView([userLat, userLon], 12);
+
+            // Add markers for buildings
             buildings.forEach(function(building) {
-                building.distance = getDistanceFromLatLonInKm(userLat, userLon, building.lat, building.lon);
-            });
+                var marker = L.marker([building.lat, building.lon]).addTo(map);
 
-            // Sort buildings by distance (ascending order)
-            buildings.sort(function(a, b) {
-                return a.distance - b.distance;
-            });
+                // Calculate the distance from the user to the building
+                var userLatLng = L.latLng(userLat, userLon);
+                var buildingLatLng = L.latLng(building.lat, building.lon);
+                var distance = userLatLng.distanceTo(buildingLatLng) / 1000; // Convert meters to kilometers
 
-            // Display the sorted list of buildings
-            var locationContainer = document.getElementById("locations");
-            buildings.forEach(function(building) {
-                var locationDiv = document.createElement("div");
-                locationDiv.className = "location";
-                locationDiv.innerHTML = `
-                    <h2>${building.name}</h2>
-                    <p>Seats available: ${building.seatsAvailable}</p>
-                    <p>Distance: ${building.distance.toFixed(2)} km</p>
-                    <p><a href="${building.deeplink}">Book Now</a></p>
-                `;
-                locationContainer.appendChild(locationDiv);
+                // Bind popup with building details
+                marker.bindPopup(`
+                    <b>${building.name}</b><br>
+                    Seats available: ${building.seatsAvailable}<br>
+                    Distance: ${distance.toFixed(2)} km<br>
+                    <a href="${building.deeplink}" target="_blank">Book Now</a>
+                `);
             });
-
         }, function(error) {
             alert("Geolocation failed: " + error.message);
         });
