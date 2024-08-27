@@ -44,10 +44,10 @@
 
 <script>
     var buildings = [
-        {name: "HDB", lat: 1.3326, lon: 103.8479, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Central Singapore
-        {name: "Building 2", lat: 1.3644, lon: 103.9915, seatsAvailable: 8, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Pasir Ris
-        {name: "Building 3", lat: 1.2839, lon: 103.8514, seatsAvailable: 0, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Marina Bay Sands
-        {name: "Building 4", lat: 1.3776, lon: 103.7641, seatsAvailable: 12, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}  // Woodlands
+        {name: "HDB", lat: parseFloat(1.3326), lon: parseFloat(103.8479), seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Central Singapore
+        {name: "Building 2", lat: parseFloat(1.3644), lon: parseFloat(103.9915), seatsAvailable: 8, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Pasir Ris
+        {name: "Building 3", lat: parseFloat(1.2839), lon: parseFloat(103.8514), seatsAvailable: 0, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Marina Bay Sands
+        {name: "Building 4", lat: parseFloat(1.3776), lon: parseFloat(103.7641), seatsAvailable: 12, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}  // Woodlands
     ];
 
     function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -67,8 +67,8 @@
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-            var userLat = position.coords.latitude;
-            var userLon = position.coords.longitude;
+            var userLat = parseFloat(position.coords.latitude);
+            var userLon = parseFloat(position.coords.longitude);
 
             // Display user's current latitude and longitude
             var userLocationDiv = document.getElementById("userLocation");
