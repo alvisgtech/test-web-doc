@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Building Locator with OneMap</title>
+    <title>Building Locator with Google Distance Matrix</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,7 +35,7 @@
 <div id="locations"></div>
 
 <script>
-    var apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyOTIwNDE1YWFjY2ViNzA5OGZmYTQ4MTg5ZDNmNTRiZCIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzI0NzY1OTM0LCJleHAiOjE3MjUwMjUxMzQsIm5iZiI6MTcyNDc2NTkzNCwianRpIjoiVURmTkV3ME1wd1ZjWnREcCIsInVzZXJfaWQiOjQ0MjQsImZvcmV2ZXIiOmZhbHNlfQ.anQ88CPK2eOQWaPDFFyd3zzzaxlNdjAnCJUOUcjwILE'; // Replace with your OneMap API key
+    var apiKey = 'AIzaSyD70xskH2pbOVRRg8vyz9-eeLwem_RU2NQ'; // Replace with your Google Maps API key
 
         var buildings = [
             {name: "HDB", lat: 1.3326157210856786, lon: 103.84792891104003, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Central Singapore
@@ -50,46 +50,50 @@
             var userLat = position.coords.latitude;
             var userLon = position.coords.longitude;
 
-            // Initialize an array to store promises for the distance calculation
-            var distancePromises = buildings.map(function(building) {
-                // Build the API request URL
-                var url = `https://developers.onemap.sg/privateapi/routingsvc/route?start=${userLon},${userLat}&end=${building.lon},${building.lat}&routeType=walk&token=${apiKey}`;
+            // Create a string of building locations for the Distance Matrix API request
+            var destinations = buildings.map(function(building) {
+                return building.lat + ',' + building.lon;
+            }).join('|');
 
-                // Return a fetch promise
-                return fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Check if the response is valid and calculate the distance
-                        if (data.route_summary && data.route_summary.total_distance) {
-                            building.distance = data.route_summary.total_distance / 1000; // Convert meters to kilometers
-                        } else {
-                            building.distance = Infinity; // Handle error cases
-                        }
-                    });
-            });
+            // Make a request to the Google Distance Matrix API
+            var url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLon}&destinations=${destinations}&key=${apiKey}`;
 
-            // Wait for all distance calculations to complete
-            Promise.all(distancePromises).then(function() {
-                // Sort buildings by distance (ascending order)
-                buildings.sort(function(a, b) {
-                    return a.distance - b.distance;
-                });
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "OK") {
+                        // Assign the distances to the buildings array
+                        data.rows[0].elements.forEach(function(element, index) {
+                            if (element.status === "OK") {
+                                buildings[index].distance = element.distance.value / 1000; // Convert meters to kilometers
+                            } else {
+                                buildings[index].distance = Infinity; // Handle error cases
+                            }
+                        });
 
-                // Display the sorted list
-                var locationContainer = document.getElementById("locations");
-                buildings.forEach(function(building) {
-                    var locationDiv = document.createElement("div");
-                    locationDiv.className = "location";
-                    locationDiv.innerHTML = `
-                        <h2>${building.name}</h2>
-                        <p>Seats available: ${building.seatsAvailable}</p>
-                        <p>Distance: ${building.distance.toFixed(2)} km</p>
-                        <p><a href="${building.deeplink}">Book Now</a></p>
-                    `;
-                    locationContainer.appendChild(locationDiv);
-                });
-            });
+                        // Sort buildings by distance (ascending order)
+                        buildings.sort(function(a, b) {
+                            return a.distance - b.distance;
+                        });
 
+                        // Display the sorted list
+                        var locationContainer = document.getElementById("locations");
+                        buildings.forEach(function(building) {
+                            var locationDiv = document.createElement("div");
+                            locationDiv.className = "location";
+                            locationDiv.innerHTML = `
+                                <h2>${building.name}</h2>
+                                <p>Seats available: ${building.seatsAvailable}</p>
+                                <p>Distance: ${building.distance.toFixed(2)} km</p>
+                                <p><a href="${building.deeplink}">Book Now</a></p>
+                            `;
+                            locationContainer.appendChild(locationDiv);
+                        });
+                    } else {
+                        alert("Distance Matrix API error: " + data.status);
+                    }
+                })
+                .catch(error => console.error("Error fetching Distance Matrix data:", error));
         }, function(error) {
             alert("Geolocation failed: " + error.message);
         });
