@@ -35,12 +35,34 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
     // Define the buildings array
-    var buildings = [
-        {name: "HDB", lat: 1.3326157210856786, lon: 103.84792891104003, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Central Singapore
-        {name: "Building 2", lat: 1.3644, lon: 103.9915, seatsAvailable: 8, deeplink: "myapp://building2"}, // Pasir Ris
-        {name: "Building 3", lat: 1.2839, lon: 103.8514, seatsAvailable: 0, deeplink: "myapp://building3"}, // Marina Bay Sands
-        {name: "Building 4", lat: 1.3776, lon: 103.7641, seatsAvailable: 12, deeplink: "myapp://building4"}  // Woodlands
-    ];
+  var buildings = [
+    {name: "Academy of Singapore Teachers", address: "2 MALAN ROAD ACADEMY OF SINGAPORE TEACHERS SINGAPORE 109433", lat: 1.275966, lon: 103.8034834, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "ACRA Collab Space @ Revenue House", address: "55 NEWTON ROAD DBS REVENUE HOUSE SINGAPORE 307987", lat: 1.3194896, lon: 103.8419753, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Centre of Building Research", address: "1 WOODLANDS INDUSTRIAL PARK E3 HDB CENTRE OF BUILDING RESEARCH SINGAPORE 757780", lat: 1.4548135, lon: 103.8000692, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Choa Chu Kang Sport Centre", address: "1 CHOA CHU KANG STREET 53 CHOA CHU KANG SPORTS CENTRE SINGAPORE 689236", lat: 1.3905956, lon: 103.7480241, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Civil Service Club @ Tessensohn", address: "60 TESSENSOHN ROAD CSC @ TESSENSOHN SINGAPORE 217664", lat: 1.3157403, lon: 103.8561848, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Civil Service Club @ Changi", address: "2 NETHERAVON ROAD CSC @ CHANGI SINGAPORE 508503", lat: 1.3909508, lon: 103.986891, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "CREATE Tower", address: "1 CREATE WAY UNIVERSITY TOWN (CREATE) SINGAPORE 138602", lat: 1.3039965, lon: 103.7740329, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Enterprise Singapore", address: "230 VICTORIA STREET BUGIS JUNCTION TOWERS SINGAPORE", lat: 1.2998126, lon: 103.8559554, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Fusionopolis One (Symbiosis Tower)", address: "3 FUSIONOPOLIS WAY SYMBIOSIS SINGAPORE 138633", lat: 1.2988512, lon: 103.7877806, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "HDB Hub", address: "460 LORONG 6 TOA PAYOH HDB HUB SINGAPORE 310460", lat: 1.3320139, lon: 103.8498495, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Health Promotion Board", address: "3 SECOND HOSPITAL AVENUE HEALTH PROMOTION BOARD SINGAPORE 168937", lat: 1.2796054, lon: 103.8383464, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "JEM Office Tower", address: "52 JURONG GATEWAY ROAD JEM SINGAPORE 608550", lat: 1.33306, lon: 103.7435037, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Jurong Lake Gardens", address: "100 YUAN CHING ROAD PASSION WAVE @ JURONG LAKE GARDENS SINGAPORE 618662", lat: 1.3393596, lon: 103.7272995, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Mapletree Business City", address: "10 PASIR PANJANG ROAD DBS MAPLETREE BUSINESS CITY SINGAPORE 117438", lat: 1.2745743, lon: 103.7989859, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "MND Tower Block", address: "5 MAXWELL ROAD MND COMPLEX (TOWER BLOCK) SINGAPORE 069110", lat: 1.278858, lon: 103.8458861, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "MOE Building", address: "1 NORTH BUONA VISTA DRIVE MOE BUILDING SINGAPORE 138675", lat: 1.3054191, lon: 103.7906068, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "MOEHQ Balestier", address: "565 BALESTIER ROAD MOE HQ (BALESTIER) SINGAPORE 329927", lat: 1.3256019, lon: 103.8444308, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "MOEHQ Ghim Moh", address: "285 GHIM MOH ROAD MOE HQ (GHIM MOH) SINGAPORE 279622", lat: 1.3103919, lon: 103.7864951, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "MOEHQ Grange Road", address: "51 GRANGE ROAD MOE HQ (GRANGE ROAD) SINGAPORE 249564", lat: 1.2972459, lon: 103.829144, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "M-Works @ Bukit Merah Central", address: "2 BUKIT MERAH CENTRAL SINGAPORE 159835", lat: 1.2843045, lon: 103.8137429, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "M-Works @ Tampines", address: "1 TAMPINES WALK OUR TAMPINES HUB SINGAPORE 528523", lat: 1.3531336, lon: 103.9404081, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "National Council of Social Service", address: "170 GHIM MOH ROAD NATIONAL COUNCIL OF SOCIAL SERVICE (NCSS) SINGAPORE 279621", lat: 1.3123258, lon: 103.7895957, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Our Tampines Hub", address: "1 TAMPINES WALK OUR TAMPINES HUB SINGAPORE 528523", lat: 1.3531336, lon: 103.9404081, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Singapore Visitor Centre @ Orchard Gateway", address: "277 ORCHARD ROAD ORCHARD GATEWAY SINGAPORE 238858", lat: 1.3004433, lon: 103.8394428, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "SLA @ Revenue House", address: "55 NEWTON ROAD DBS REVENUE HOUSE SINGAPORE 307987", lat: 1.3194896, lon: 103.8419753, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"},
+    {name: "Temasek Polytechnic", address: "21 TAMPINES AVENUE 1 DBS TEMASEK POLYTECHNIC SINGAPORE 529757", lat: 1.3459461, lon: 103.9326315, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}
+];
 
     // Initialize the map
     var map = L.map('map').setView([1.3521, 103.8198], 12); // Initial view centered on Singapore
@@ -49,6 +71,16 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+
+    // Custom red marker icon for the user's location
+    var redIcon = L.icon({
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-red.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
 
     // Geolocation: Get the user's location
     if (navigator.geolocation) {
@@ -60,8 +92,8 @@
             var userLocationDiv = document.getElementById("userLocation");
             userLocationDiv.innerHTML = `<strong>Your Location:</strong> Latitude: ${userLat.toFixed(6)}, Longitude: ${userLon.toFixed(6)}`;
 
-            // Add marker for user's location
-            var userMarker = L.marker([userLat, userLon]).addTo(map).bindPopup("You are here").openPopup();
+            // Add custom red marker for user's location
+            var userMarker = L.marker([userLat, userLon], { icon: redIcon }).addTo(map).bindPopup("You are here").openPopup();
 
             // Center the map on user's location
             map.setView([userLat, userLon], 12);
@@ -75,9 +107,10 @@
                 var buildingLatLng = L.latLng(building.lat, building.lon);
                 var distance = userLatLng.distanceTo(buildingLatLng) / 1000; // Convert meters to kilometers
 
-                // Bind popup with building details
+                // Bind popup with building details, including address
                 marker.bindPopup(`
                     <b>${building.name}</b><br>
+                    Address: ${building.address}<br>
                     Seats available: ${building.seatsAvailable}<br>
                     Distance: ${distance.toFixed(2)} km<br>
                     <a href="${building.deeplink}" target="_blank">Book Now</a>
