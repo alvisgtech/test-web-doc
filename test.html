@@ -34,6 +34,7 @@
 <h1>Available Buildings</h1>
 <div id="locations"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- Include axios -->
 <script>
     var apiKey = 'AIzaSyD70xskH2pbOVRRg8vyz9-eeLwem_RU2NQ'; // Replace with your Google Maps API key
 
@@ -44,7 +45,6 @@
             {name: "Building 4", lat: 1.3776, lon: 103.7641, seatsAvailable: 12, deeplink: "myapp://building4"}  // Woodlands
         ];
 		
-
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             var userLat = position.coords.latitude;
@@ -55,45 +55,54 @@
                 return building.lat + ',' + building.lon;
             }).join('|');
 
-            // Make a request to the Google Distance Matrix API
+            // Construct the URL for the Distance Matrix API
             var url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLon}&destinations=${destinations}&key=${apiKey}`;
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "OK") {
-                        // Assign the distances to the buildings array
-                        data.rows[0].elements.forEach(function(element, index) {
-                            if (element.status === "OK") {
-                                buildings[index].distance = element.distance.value / 1000; // Convert meters to kilometers
-                            } else {
-                                buildings[index].distance = Infinity; // Handle error cases
-                            }
-                        });
+            // Axios config for making the request
+            var config = {
+                method: 'get',
+                url: url,
+                secure: false // This flag doesn't guarantee bypassing CORS but we'll include it for reference
+            };
 
-                        // Sort buildings by distance (ascending order)
-                        buildings.sort(function(a, b) {
-                            return a.distance - b.distance;
-                        });
+            axios(config)
+            .then(function (response) {
+                if (response.data.status === "OK") {
+                    // Assign the distances to the buildings array
+                    response.data.rows[0].elements.forEach(function(element, index) {
+                        if (element.status === "OK") {
+                            buildings[index].distance = element.distance.value / 1000; // Convert meters to kilometers
+                        } else {
+                            buildings[index].distance = Infinity; // Handle error cases
+                        }
+                    });
 
-                        // Display the sorted list
-                        var locationContainer = document.getElementById("locations");
-                        buildings.forEach(function(building) {
-                            var locationDiv = document.createElement("div");
-                            locationDiv.className = "location";
-                            locationDiv.innerHTML = `
-                                <h2>${building.name}</h2>
-                                <p>Seats available: ${building.seatsAvailable}</p>
-                                <p>Distance: ${building.distance.toFixed(2)} km</p>
-                                <p><a href="${building.deeplink}">Book Now</a></p>
-                            `;
-                            locationContainer.appendChild(locationDiv);
-                        });
-                    } else {
-                        alert("Distance Matrix API error: " + data.status);
-                    }
-                })
-                .catch(error => console.error("Error fetching Distance Matrix data:", error));
+                    // Sort buildings by distance (ascending order)
+                    buildings.sort(function(a, b) {
+                        return a.distance - b.distance;
+                    });
+
+                    // Display the sorted list
+                    var locationContainer = document.getElementById("locations");
+                    buildings.forEach(function(building) {
+                        var locationDiv = document.createElement("div");
+                        locationDiv.className = "location";
+                        locationDiv.innerHTML = `
+                            <h2>${building.name}</h2>
+                            <p>Seats available: ${building.seatsAvailable}</p>
+                            <p>Distance: ${building.distance.toFixed(2)} km</p>
+                            <p><a href="${building.deeplink}">Book Now</a></p>
+                        `;
+                        locationContainer.appendChild(locationDiv);
+                    });
+                } else {
+                    alert("Distance Matrix API error: " + response.data.status);
+                }
+            })
+            .catch(function (error) {
+                console.error("Error fetching Distance Matrix data:", error);
+                alert("An error occurred while fetching distance data. Please try again.");
+            });
         }, function(error) {
             alert("Geolocation failed: " + error.message);
         });
