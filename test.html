@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Locator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .location {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .location h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .location p {
+            margin: 5px 0;
+        }
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Available Buildings</h1>
+<div id="locations"></div>
+
+<script>
+    var apiKey = 'AIzaSyD70xskH2pbOVRRg8vyz9-eeLwem_RU2NQ'; // Replace with your Google Maps API key
+
+        var buildings = [
+            {name: "HDB", lat: 1.3326157210856786, lon: 103.84792891104003, seatsAvailable: 5, deeplink: "https://app.workpal.gov.sg/miniapp?module=resource"}, // Central Singapore
+            {name: "Building 2", lat: 1.3644, lon: 103.9915, seatsAvailable: 8, deeplink: "myapp://building2"}, // Pasir Ris
+            {name: "Building 3", lat: 1.2839, lon: 103.8514, seatsAvailable: 0, deeplink: "myapp://building3"}, // Marina Bay Sands
+            {name: "Building 4", lat: 1.3776, lon: 103.7641, seatsAvailable: 12, deeplink: "myapp://building4"}  // Woodlands
+        ];
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var userLat = position.coords.latitude;
+            var userLon = position.coords.longitude;
+
+            // Create a string of building locations for the Distance Matrix API request
+            var destinations = buildings.map(function(building) {
+                return building.lat + ',' + building.lon;
+            }).join('|');
+
+            // Make a request to the Google Distance Matrix API
+            var url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${userLat},${userLon}&destinations=${destinations}&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "OK") {
+                        // Assign the distances to the buildings array
+                        data.rows[0].elements.forEach(function(element, index) {
+                            buildings[index].distance = element.distance.value / 1000; // Convert meters to kilometers
+                        });
+
+                        // Sort buildings by distance (ascending order)
+                        buildings.sort(function(a, b) {
+                            return a.distance - b.distance;
+                        });
+
+                        // Display the sorted list
+                        var locationContainer = document.getElementById("locations");
+                        buildings.forEach(function(building) {
+                            var locationDiv = document.createElement("div");
+                            locationDiv.className = "location";
+                            locationDiv.innerHTML = `
+                                <h2>${building.name}</h2>
+                                <p>Seats available: ${building.seatsAvailable}</p>
+                                <p>Distance: ${building.distance.toFixed(2)} km</p>
+                                <p><a href="${building.deeplink}">Book Now</a></p>
+                            `;
+                            locationContainer.appendChild(locationDiv);
+                        });
+                    } else {
+                        alert("Distance Matrix API error: " + data.status);
+                    }
+                })
+                .catch(error => console.error("Error fetching Distance Matrix data:", error));
+        }, function(error) {
+            alert("Geolocation failed: " + error.message);
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+</script>
+
+</body>
+</html>
